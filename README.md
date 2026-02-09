@@ -34,7 +34,7 @@ SmartERP is a comprehensive, modular ERP system built with the MERN stack (Mongo
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Nasir0347/SmartERP.git
+   git clone https://github.com/nasbalty01/SmartERP.git
    cd SmartERP
    ```
 
