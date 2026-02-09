@@ -59,9 +59,9 @@ const Layout = () => {
         { text: 'CRM', icon: <People />, path: '/crm' },
         { text: 'Sales', icon: <ShoppingCart />, path: '/sales' },
         { text: 'Inventory', icon: <Inventory />, path: '/inventory' },
-        { text: 'Purchase', icon: <Receipt />, path: '/purchase' },
-        { text: 'Accounting', icon: <AccountBalance />, path: '/accounting' },
-        { text: 'HR', icon: <Badge />, path: '/hr' },
+        { text: 'Purchase', icon: <Receipt />, path: '/purchase', roles: ['admin', 'manager'] },
+        { text: 'Accounting', icon: <AccountBalance />, path: '/accounting', roles: ['admin'] },
+        { text: 'HR', icon: <Badge />, path: '/hr', roles: ['admin', 'manager'] },
     ];
 
     const drawer = (
@@ -73,7 +73,7 @@ const Layout = () => {
             </Toolbar>
             <Divider />
             <List>
-                {menuItems.map((item) => (
+                {menuItems.filter(item => !item.roles || item.roles.includes(user?.role)).map((item) => (
                     <ListItem key={item.text} disablePadding>
                         <ListItemButton
                             selected={location.pathname.startsWith(item.path) && (item.path !== '/' || location.pathname === '/')}

@@ -1,51 +1,99 @@
-import React from 'react';
-import { Grid, Paper, Typography, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Grid, Paper, Typography, Box, CircularProgress } from '@mui/material';
 import { People, ShoppingCart, Inventory, AttachMoney } from '@mui/icons-material';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import api from '../services/api';
 
 const StatCard = ({ title, value, icon, color }) => (
-    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Box sx={{ p: 1, borderRadius: 1, bgcolor: `${color}20`, color: color, mr: 2 }}>
-                {icon}
-            </Box>
-            <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                {title}
-            </Typography>
+    <Paper sx={{ p: 3, display: 'flex', alignItems: 'center', transition: '0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
+        <Box sx={{ p: 1, borderRadius: 2, bgcolor: `${color}.light`, color: `${color}.main`, mr: 2, display: 'flex' }}>
+            {icon}
         </Box>
-        <Typography component="p" variant="h4">
-            {value}
-        </Typography>
+        <Box>
+            <Typography variant="body2" color="textSecondary">{title}</Typography>
+            <Typography variant="h5" fontWeight="bold">{value}</Typography>
+        </Box>
     </Paper>
 );
 
 const Dashboard = () => {
-    // In a real app, fetch these stats from API
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const { data } = await api.get('/dashboard/stats');
+                setData(data);
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress /></Box>;
+
+    const { stats, chartData } = data || { stats: {}, chartData: [] };
+
     return (
         <Box>
-            <Typography variant="h4" gutterBottom>
-                Dashboard
-            </Typography>
+            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Dashboard Overview</Typography>
+
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid item xs={12} sm={6} md={3}>
+                    <StatCard title="Total Revenue" value={`$${stats.totalSales?.toLocaleString() || 0}`} icon={<AttachMoney />} color="success" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <StatCard title="Active Leads" value={stats.leads} icon={<People />} color="info" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <StatCard title="Sales Orders" value={stats.salesCount} icon={<ShoppingCart />} color="warning" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <StatCard title="In Stock Items" value={stats.products} icon={<Inventory />} color="primary" />
+                </Grid>
+            </Grid>
+
             <Grid container spacing={3}>
-                <Grid item xs={12} md={3}>
-                    <StatCard title="Total Customers" value="128" icon={<People />} color="#1976d2" />
+                <Grid item xs={12} md={8}>
+                    <Paper sx={{ p: 3 }}>
+                        <Typography variant="h6" gutterBottom>Sales Trend</Typography>
+                        <Box sx={{ height: 300 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={chartData}>
+                                    <defs>
+                                        <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#1976d2" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#1976d2" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis dataKey="name" />
+                                    <YAxis tickFormatter={(value) => `$${value}`} />
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="amount" stroke="#1976d2" fillOpacity={1} fill="url(#colorAmt)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </Box>
+                    </Paper>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                    <StatCard title="Total Orders" value="45" icon={<ShoppingCart />} color="#2e7d32" />
-                </Grid>
-                <Grid item xs={12} md={3}>
-                    <StatCard title="Low Stock Items" value="12" icon={<Inventory />} color="#ed6c02" />
-                </Grid>
-                <Grid item xs={12} md={3}>
-                    <StatCard title="Revenue (M)" value="$24.5k" icon={<AttachMoney />} color="#9c27b0" />
-                </Grid>
-                <Grid item xs={12}>
-                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                        <Typography variant="h6" gutterBottom>
-                            Recent Orders
-                        </Typography>
-                        <Typography color="text.secondary">
-                            (Table placeholder - to be implemented with Sales module integration)
-                        </Typography>
+                <Grid item xs={12} md={4}>
+                    <Paper sx={{ p: 3, height: '100%' }}>
+                        <Typography variant="h6" gutterBottom>Quick Actions</Typography>
+                        <Typography variant="body2" color="textSecondary">Manage your business operations efficiently from these modules.</Typography>
+                        <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Paper variant="outlined" sx={{ p: 2, bgcolor: 'grey.50' }}>
+                                <Typography variant="subtitle2">System Status</Typography>
+                                <Typography variant="caption" color="success.main">● Backend API Connected</Typography>
+                            </Paper>
+                            <Paper variant="outlined" sx={{ p: 2, bgcolor: 'grey.50' }}>
+                                <Typography variant="subtitle2">Inventory Alert</Typography>
+                                <Typography variant="caption" color="warning.main">● 2 Items low on stock</Typography>
+                            </Paper>
+                        </Box>
                     </Paper>
                 </Grid>
             </Grid>

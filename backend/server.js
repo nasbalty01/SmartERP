@@ -49,6 +49,7 @@ app.use('/api/sales', require('./routes/salesRoutes'));
 app.use('/api/purchase', require('./routes/purchaseRoutes'));
 app.use('/api/accounting', require('./routes/accountingRoutes'));
 app.use('/api/hr', require('./routes/hrRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
 const limiter = require('express-rate-limit')({
     windowMs: 15 * 60 * 1000, // 15 minutes
