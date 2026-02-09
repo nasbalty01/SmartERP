@@ -3,7 +3,7 @@ const Product = require('../models/productModel');
 const Lead = require('../models/leadModel');
 const Customer = require('../models/customerModel');
 const Employee = require('../models/employeeModel');
-const SaleOrder = require('../models/salesModel');
+const SaleOrder = require('../models/saleOrderModel');
 const PurchaseOrder = require('../models/purchaseOrderModel');
 const Invoice = require('../models/invoiceModel');
 
